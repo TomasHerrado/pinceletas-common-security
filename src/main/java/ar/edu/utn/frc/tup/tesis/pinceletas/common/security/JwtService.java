@@ -1,5 +1,4 @@
-package ar.edu.utn.frc.tup.tesis.pinceletas_common_security;
-
+package ar.edu.utn.frc.tup.tesis.pinceletas.common.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

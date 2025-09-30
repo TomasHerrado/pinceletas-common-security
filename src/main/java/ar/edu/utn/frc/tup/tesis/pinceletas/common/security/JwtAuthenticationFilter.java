@@ -1,4 +1,4 @@
-package ar.edu.utn.frc.tup.tesis.pinceletas_common_security;
+package ar.edu.utn.frc.tup.tesis.pinceletas.common.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

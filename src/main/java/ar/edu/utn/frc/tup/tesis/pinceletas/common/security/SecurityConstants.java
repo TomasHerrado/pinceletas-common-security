@@ -1,5 +1,4 @@
-package ar.edu.utn.frc.tup.tesis.pinceletas_common_security;
-
+package ar.edu.utn.frc.tup.tesis.pinceletas.common.security;
 /**
  * Constantes de seguridad compartidas entre todos los microservicios
  * ⚠️ IMPORTANTE: Estos valores deben ser iguales en todos los servicios
