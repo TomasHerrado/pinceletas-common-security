@@ -19,15 +19,29 @@ import java.io.IOException;
 import java.util.Collections;
 
 /**
- * Filtro JWT para validar tokens en cada request
- * Compartido entre todos los microservicios
+ * Filtro de autenticación JWT para Spring Security.
+ * Intercepta todas las peticiones HTTP y valida el token JWT presente
+ * en el header Authorization. Si el token es válido, establece la autenticación
+ * en el contexto de seguridad de Spring.
  */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    /** Servicio para operaciones de validación y extracción de datos del JWT. */
     private final JwtService jwtService;
 
+    /**
+     * Método principal del filtro que procesa cada petición HTTP.
+     * Extrae el token del header, lo valida, extrae la información del usuario
+     * y establece la autenticación en el contexto de seguridad.
+     *
+     * @param request Petición HTTP entrante.
+     * @param response Respuesta HTTP.
+     * @param filterChain Cadena de filtros de Spring Security.
+     * @throws ServletException Si ocurre un error en el procesamiento del servlet.
+     * @throws IOException Si ocurre un error de entrada/salida.
+     */
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -53,7 +67,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 log.debug("Token válido para usuario: {} con rol: {}", email, role);
 
-                // Crear autenticación con el rol extraído del token
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 email,
@@ -82,7 +95,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Extrae el token del header Authorization
+     * Extrae el token JWT del header Authorization de la petición HTTP.
+     * Busca el header "Authorization" y verifica que comience con el prefijo "Bearer ".
+     * Si existe y tiene el formato correcto, retorna el token sin el prefijo.
+     *
+     * @param request Petición HTTP de la cual extraer el token.
+     * @return El token JWT sin el prefijo "Bearer ", o null si no existe o es inválido.
      */
     private String getTokenFromRequest(HttpServletRequest request) {
         final String authHeader = request.getHeader(SecurityConstants.JWT_HEADER);
@@ -96,14 +114,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Define qué rutas NO deben pasar por este filtro
-     * Puede ser sobrescrito en cada microservicio según necesidad
+     * Define las rutas que NO deben pasar por este filtro de autenticación.
+     * Las rutas públicas definidas aquí no requerirán un token JWT válido.
+     * Este método puede ser sobrescrito en cada microservicio para agregar
+     * rutas específicas según sus necesidades.
+     *
+     * @param request Petición HTTP a evaluar.
+     * @return true si la ruta NO debe ser filtrada (es pública), false si debe pasar por el filtro.
+     * @throws ServletException Si ocurre un error en el procesamiento.
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
 
-        // Rutas públicas comunes a todos los microservicios
         return path.startsWith("/api/auth/") ||
                 path.startsWith("/swagger-ui/") ||
                 path.startsWith("/v3/api-docs/") ||
